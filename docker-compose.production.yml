@@ -1,0 +1,63 @@
+services:
+  headscale:
+    image: headscale/headscale:0.27.1
+    container_name: headscale
+    restart: unless-stopped
+    command: serve
+    volumes:
+      - ./.docker/config:/etc/headscale
+      - ./.docker/data:/var/lib/headscale
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+
+      - "traefik.http.routers.headscale.rule=Host(`headscale.${DOMAIN}`)"
+      - "traefik.http.routers.headscale.entrypoints=websecure"
+      - "traefik.http.routers.headscale.tls.certresolver=le-cloudflare"
+      - "traefik.http.routers.headscale.service=headscale"
+
+      # --- CORS Middleware Ayarları (SIHİRLİ KISIM) ---
+      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolalloworiginlist=https://headscale-ui.${DOMAIN}"
+      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolallowmethods=GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolmaxage=100"
+
+      # --- Middleware'i Router'a Bağlama ---
+      - "traefik.http.routers.headscale.middlewares=headscale-cors"
+
+      # Services
+      - "traefik.http.services.headscale.loadbalancer.server.port=8080"
+    networks:
+      - traefik-network
+    environment:
+      - TZ=Europe/Istanbul
+    # Sadece container sağlıklıysa trafiği kabul et
+    healthcheck:
+      test: ["CMD", "headscale", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  headscale-ui:
+    image: ghcr.io/gurucomputing/headscale-ui:latest
+    container_name: headscale-ui
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+
+      # Subdomain Kuralı
+      - "traefik.http.routers.headscale-ui.rule=Host(`headscale-ui.${DOMAIN}`)"
+      - "traefik.http.routers.headscale-ui.entrypoints=websecure"
+      - "traefik.http.routers.headscale-ui.tls.certresolver=le-cloudflare"
+
+      # Service Ayarları
+      - "traefik.http.routers.headscale-ui.service=headscale-ui"
+      - "traefik.http.services.headscale-ui.loadbalancer.server.port=8080"
+
+
+networks:
+  traefik-network:
+    external: true
