@@ -5,8 +5,8 @@ services:
     restart: unless-stopped
     command: serve
     volumes:
-      - ./.docker/config:/etc/headscale
-      - ./.docker/data:/var/lib/headscale
+      - ./.docker/headscale/config:/etc/headscale
+      - ./.docker/headscale/data:/var/lib/headscale
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-network"
@@ -27,6 +27,8 @@ services:
 
       # Services
       - "traefik.http.services.headscale.loadbalancer.server.port=8080"
+    ports:
+      - "3478:3478/udp"
     networks:
       - traefik-network
     environment:
@@ -52,6 +54,7 @@ services:
       - "traefik.http.routers.headscale-ui.rule=Host(`headscale-ui.${DOMAIN}`)"
       - "traefik.http.routers.headscale-ui.entrypoints=websecure"
       - "traefik.http.routers.headscale-ui.tls.certresolver=le-cloudflare"
+      - "traefik.http.routers.headscale-ui.middlewares=internal@docker" # Security Middleware
 
       # Service Ayarları
       - "traefik.http.routers.headscale-ui.service=headscale-ui"
