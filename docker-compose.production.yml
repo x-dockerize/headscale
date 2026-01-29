@@ -88,6 +88,29 @@ services:
       headscale:
         condition: service_started
 
+  headplane:
+    image: ghcr.io/tale/headplane:latest
+    container_name: headplane
+    restart: unless-stopped
+    volumes:
+      - ./.docker/headplane/config/config.yaml:/etc/headplane/config.yaml'
+      - ./.docker/headplane/data/storage:/var/lib/headplane
+      - ./.docker/headscale/config/config.yaml:/etc/headscale/config.yaml:ro
+      - ./.docker/headscale/config/dns_records.json:/etc/headscale/dns_records.json
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+
+      # Routers
+      - "traefik.http.routers.headplane.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`) && PathPrefix(`/headplane`)"
+      - "traefik.http.routers.headplane.entrypoints=websecure"
+      - "traefik.http.routers.headplane.tls.certresolver=le-cloudflare"
+      - "traefik.http.routers.headplane.service=headplane"
+
+      # Services
+      - "traefik.http.services.headplane.loadbalancer.server.port=3000"
+
 
 volumes:
   selfservice-data:
