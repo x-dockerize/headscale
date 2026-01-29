@@ -2,63 +2,100 @@ services:
   headscale:
     image: headscale/headscale:0.27.1
     container_name: headscale
-    restart: unless-stopped
+    pull_policy: always
+    restart: always
     command: serve
     volumes:
-      - ./.docker/headscale/config:/etc/headscale
+      - ./.docker/headscale/config/config.yaml:/etc/headscale/config.yaml:ro
       - ./.docker/headscale/data:/var/lib/headscale
+      - headscale-socket:/var/run/headscale:rw
+    expose:
+      - 8080 #  Main server
+      - 9090 #  Metrics
+      - 50443 # GRPC
+    ports:
+      - 0.0.0.0:3478:3478/udp # stun
+    networks:
+      - traefik-network
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-network"
 
-      - "traefik.http.routers.headscale.rule=Host(`headscale.${DOMAIN}`)"
+      # Routers
+      - "traefik.http.routers.headscale.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`)"
       - "traefik.http.routers.headscale.entrypoints=websecure"
       - "traefik.http.routers.headscale.tls.certresolver=le-cloudflare"
       - "traefik.http.routers.headscale.service=headscale"
 
-      # --- CORS Middleware Ayarları (SIHİRLİ KISIM) ---
-      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolalloworiginlist=https://headscale-ui.${DOMAIN}"
-      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolallowmethods=GET,POST,PUT,PATCH,DELETE,OPTIONS"
-      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolallowheaders=*"
-      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolmaxage=100"
-
-      # --- Middleware'i Router'a Bağlama ---
-      - "traefik.http.routers.headscale.middlewares=headscale-cors"
-
       # Services
       - "traefik.http.services.headscale.loadbalancer.server.port=8080"
-    ports:
-      - "3478:3478/udp"
-    networks:
-      - traefik-network
     environment:
       - TZ=Europe/Istanbul
-    # Sadece container sağlıklıysa trafiği kabul et
     healthcheck:
-      test: ["CMD", "headscale", "health"]
+      test: [ "CMD", "headscale", "health" ]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  headscale-ui:
-    image: ghcr.io/gurucomputing/headscale-ui:latest
-    container_name: headscale-ui
-    restart: unless-stopped
+  headscale-console:
+    image: ghcr.io/rickli-cloud/headscale-console:latest
+    container_name: headscale-console
+    pull_policy: always
+    restart: always
+    command: serve
+    volumes:
+      - ./.docker/headscale/config/config.yaml:/etc/headscale/config.yaml:ro
+    expose:
+      - 3000
     networks:
       - traefik-network
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-network"
 
-      # Subdomain Kuralı
-      - "traefik.http.routers.headscale-ui.rule=Host(`headscale-ui.${DOMAIN}`)"
-      - "traefik.http.routers.headscale-ui.entrypoints=websecure"
-      - "traefik.http.routers.headscale-ui.tls.certresolver=le-cloudflare"
-      - "traefik.http.routers.headscale-ui.middlewares=internal@docker" # Security Middleware
+      # Routers
+      - "traefik.http.routers.headscale-console.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`) && PathPrefix(`/admin`)"
+      - "traefik.http.routers.headscale-console.entrypoints=websecure"
+      - "traefik.http.routers.headscale-console.tls.certresolver=le-cloudflare"
+      - "traefik.http.routers.headscale-console.service=headscale-console"
 
-      # Service Ayarları
-      - "traefik.http.routers.headscale-ui.service=headscale-ui"
-      - "traefik.http.services.headscale-ui.loadbalancer.server.port=8080"
+      # Services
+      - "traefik.http.services.headscale-console.loadbalancer.server.port=3000"
+
+  headscale-selfservice:
+    image: ghcr.io/rickli-cloud/headscale-console:latest
+    container_name: headscale-selfservice
+    pull_policy: always
+    restart: always
+    command: selfservice --control-url https://${HEADSCALE_SERVER_HOSTNAME:?required}
+    volumes:
+      - headscale-socket:/var/run/headscale:ro
+      - selfservice-data:/data:rw
+    depends_on:
+      headscale:
+        condition: service_started
+
+  headscale-policyservice:
+    image: ghcr.io/rickli-cloud/headscale-console:latest
+    container_name: headscale-policyservice
+    pull_policy: always
+    restart: always
+    command: policyservice --control-url https://${HEADSCALE_SERVER_HOSTNAME:?required}
+    volumes:
+      - headscale-socket:/var/run/headscale:ro
+      - policyservice-data:/data:rw
+    depends_on:
+      headscale:
+        condition: service_started
+
+
+volumes:
+  selfservice-data:
+    name: selfservice-data
+  policyservice-data:
+    name: policyservice-data
+  headscale-socket:
+    name: headscale-socket
 
 
 networks:
