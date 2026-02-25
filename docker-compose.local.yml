@@ -14,25 +14,25 @@ services:
     networks:
       - traefik-network
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik-network"
+      - traefik.enable=true
+      - traefik.docker.network=traefik-network
 
-      - "traefik.http.routers.headscale.rule=Host(`headscale.${DOMAIN}`)"
-      - "traefik.http.routers.headscale.entrypoints=websecure"
-      - "traefik.http.routers.headscale.tls.certresolver=le-cloudflare"
-      - "traefik.http.routers.headscale.service=headscale"
+      - traefik.http.routers.headscale.rule=Host(`headscale.${DOMAIN}`)
+      - traefik.http.routers.headscale.entrypoints=websecure
+      - traefik.http.routers.headscale.tls.certresolver=le-cloudflare
+      - traefik.http.routers.headscale.service=headscale
 
       # --- CORS Middleware Ayarları (SIHİRLİ KISIM) ---
-      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolalloworiginlist=https://headscale-ui.${DOMAIN}"
-      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolallowmethods=GET,POST,PUT,PATCH,DELETE,OPTIONS"
-      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolallowheaders=*"
-      - "traefik.http.middlewares.headscale-cors.headers.accesscontrolmaxage=100"
+      - traefik.http.middlewares.headscale-cors.headers.accesscontrolalloworiginlist=https://headscale-ui.${DOMAIN}
+      - traefik.http.middlewares.headscale-cors.headers.accesscontrolallowmethods=GET,POST,PUT,PATCH,DELETE,OPTIONS
+      - traefik.http.middlewares.headscale-cors.headers.accesscontrolallowheaders=*
+      - traefik.http.middlewares.headscale-cors.headers.accesscontrolmaxage=100
 
       # --- Middleware'i Router'a Bağlama ---
-      - "traefik.http.routers.headscale.middlewares=headscale-cors"
+      - traefik.http.routers.headscale.middlewares=headscale-cors
 
       # Services
-      - "traefik.http.services.headscale.loadbalancer.server.port=8080"
+      - traefik.http.services.headscale.loadbalancer.server.port=8080
     healthcheck:
       test: ["CMD", "headscale", "health"]
       interval: 30s
@@ -46,18 +46,18 @@ services:
     networks:
       - traefik-network
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik-network"
+      - traefik.enable=true
+      - traefik.docker.network=traefik-network
 
       # Subdomain Kuralı
-      - "traefik.http.routers.headscale-ui.rule=Host(`headscale-ui.${DOMAIN}`)"
-      - "traefik.http.routers.headscale-ui.entrypoints=websecure"
-      - "traefik.http.routers.headscale-ui.tls.certresolver=le-cloudflare"
-      - "traefik.http.routers.headscale-ui.middlewares=internal@docker" # Security Middleware
+      - traefik.http.routers.headscale-ui.rule=Host(`headscale-ui.${DOMAIN}`)
+      - traefik.http.routers.headscale-ui.entrypoints=websecure
+      - traefik.http.routers.headscale-ui.tls.certresolver=le-cloudflare
+      - traefik.http.routers.headscale-ui.middlewares=internal@docker # Security Middleware
 
       # Service Ayarları
-      - "traefik.http.routers.headscale-ui.service=headscale-ui"
-      - "traefik.http.services.headscale-ui.loadbalancer.server.port=8080"
+      - traefik.http.routers.headscale-ui.service=headscale-ui
+      - traefik.http.services.headscale-ui.loadbalancer.server.port=8080
 
 
 networks:

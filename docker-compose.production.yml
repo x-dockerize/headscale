@@ -20,19 +20,19 @@ services:
     networks:
       - traefik-network
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik-network"
+      - traefik.enable=true
+      - traefik.docker.network=traefik-network
 
       # Routers
-      - "traefik.http.routers.headscale.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`)"
-      - "traefik.http.routers.headscale.entrypoints=websecure"
-      - "traefik.http.routers.headscale.tls.certresolver=le-cloudflare"
-      - "traefik.http.routers.headscale.service=headscale"
+      - traefik.http.routers.headscale.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`)
+      - traefik.http.routers.headscale.entrypoints=websecure
+      - traefik.http.routers.headscale.tls.certresolver=le-cloudflare
+      - traefik.http.routers.headscale.service=headscale
 
       # Services
-      - "traefik.http.services.headscale.loadbalancer.server.port=8080"
+      - traefik.http.services.headscale.loadbalancer.server.port=8080
 
-      - 'me.tale.headplane.target=headscale'
+      - me.tale.headplane.target=headscale
     healthcheck:
       test: [ "CMD", "headscale", "health" ]
       interval: 30s
@@ -52,22 +52,22 @@ services:
     networks:
       - traefik-network
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik-network"
+      - traefik.enable=true
+      - traefik.docker.network=traefik-network
 
       # Routers
-      - "traefik.http.routers.headscale-console.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`) && PathPrefix(`/console`)"
-      - "traefik.http.routers.headscale-console.entrypoints=websecure"
-      - "traefik.http.routers.headscale-console.tls.certresolver=le-cloudflare"
-      - "traefik.http.routers.headscale-console.service=headscale-console"
+      - traefik.http.routers.headscale-console.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`) && PathPrefix(`/console`)
+      - traefik.http.routers.headscale-console.entrypoints=websecure
+      - traefik.http.routers.headscale-console.tls.certresolver=le-cloudflare
+      - traefik.http.routers.headscale-console.service=headscale-console
 
       # Middlewares
-      - "traefik.http.middlewares.headscale-console-rewrite.replacepathprefix.from=/console"
-      - "traefik.http.middlewares.headscale-console-rewrite.replacepathprefix.to=/admin"
-      - "traefik.http.routers.headscale-console.middlewares=headscale-console-rewrite"
+      - traefik.http.middlewares.headscale-console-rewrite.replacepathprefix.from=/console
+      - traefik.http.middlewares.headscale-console-rewrite.replacepathprefix.to=/admin
+      - traefik.http.routers.headscale-console.middlewares=headscale-console-rewrite
 
       # Services
-      - "traefik.http.services.headscale-console.loadbalancer.server.port=3000"
+      - traefik.http.services.headscale-console.loadbalancer.server.port=3000
 
   headscale-selfservice:
     image: ghcr.io/rickli-cloud/headscale-console:${HEADSCALE_CONSOLE_VERSION:-latest}
@@ -110,17 +110,17 @@ services:
     networks:
       - traefik-network
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik-network"
+      - traefik.enable=true
+      - traefik.docker.network=traefik-network
 
       # Routers
-      - "traefik.http.routers.headplane.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`) && PathPrefix(`/admin`)"
-      - "traefik.http.routers.headplane.entrypoints=websecure"
-      - "traefik.http.routers.headplane.tls.certresolver=le-cloudflare"
-      - "traefik.http.routers.headplane.service=headplane"
+      - traefik.http.routers.headplane.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`) && PathPrefix(`/admin`)
+      - traefik.http.routers.headplane.entrypoints=websecure
+      - traefik.http.routers.headplane.tls.certresolver=le-cloudflare
+      - traefik.http.routers.headplane.service=headplane
 
       # Services
-      - "traefik.http.services.headplane.loadbalancer.server.port=3000"
+      - traefik.http.services.headplane.loadbalancer.server.port=3000
 
 
 volumes:
