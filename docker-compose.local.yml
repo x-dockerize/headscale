@@ -40,7 +40,7 @@ services:
       retries: 3
 
   headscale-ui:
-    image: ghcr.io/gurucomputing/headscale-ui:latest
+    image: ghcr.io/gurucomputing/headscale-ui:2025.08.23
     container_name: headscale-ui
     restart: unless-stopped
     networks:

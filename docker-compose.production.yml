@@ -96,7 +96,7 @@ services:
       - policyservice-data:/data:rw
 
   headplane:
-    image: ghcr.io/tale/headplane:latest
+    image: ghcr.io/tale/headplane:v0.6.1
     container_name: headplane
     restart: unless-stopped
     expose:
