@@ -5,16 +5,18 @@ services:
     pull_policy: missing
     restart: always
     command: serve
-    volumes:
-      - ./.docker/headscale/config/config.yaml:/etc/headscale/config.yaml:ro
-      - ./.docker/headscale/data:/var/lib/headscale
-      - headscale-socket:/var/run/headscale:rw
+    environment:
+      - TZ=Europe/Istanbul
     expose:
       - 8080 #  Main server
       - 9090 #  Metrics
       - 50443 # GRPC
     ports:
       - 0.0.0.0:3478:3478/udp # stun
+    volumes:
+      - ./.docker/headscale/config/config.yaml:/etc/headscale/config.yaml:ro
+      - ./.docker/headscale/data:/var/lib/headscale
+      - headscale-socket:/var/run/headscale:rw
     networks:
       - traefik-network
     labels:
@@ -31,8 +33,6 @@ services:
       - "traefik.http.services.headscale.loadbalancer.server.port=8080"
 
       - 'me.tale.headplane.target=headscale'
-    environment:
-      - TZ=Europe/Istanbul
     healthcheck:
       test: [ "CMD", "headscale", "health" ]
       interval: 30s
@@ -45,10 +45,10 @@ services:
     pull_policy: missing
     restart: always
     command: serve
-    volumes:
-      - ./.docker/headscale/config/config.yaml:/etc/headscale/config.yaml:ro
     expose:
       - 3000
+    volumes:
+      - ./.docker/headscale/config/config.yaml:/etc/headscale/config.yaml:ro
     networks:
       - traefik-network
     labels:
@@ -75,12 +75,12 @@ services:
     pull_policy: missing
     restart: always
     command: selfservice --control-url https://${HEADSCALE_SERVER_HOSTNAME:?required}
-    volumes:
-      - headscale-socket:/var/run/headscale:ro
-      - selfservice-data:/data:rw
     depends_on:
       headscale:
         condition: service_started
+    volumes:
+      - headscale-socket:/var/run/headscale:ro
+      - selfservice-data:/data:rw
 
   headscale-policyservice:
     image: ghcr.io/rickli-cloud/headscale-console:${HEADSCALE_CONSOLE_VERSION:-latest}
@@ -88,25 +88,25 @@ services:
     pull_policy: missing
     restart: always
     command: policyservice --control-url https://${HEADSCALE_SERVER_HOSTNAME:?required}
-    volumes:
-      - headscale-socket:/var/run/headscale:ro
-      - policyservice-data:/data:rw
     depends_on:
       headscale:
         condition: service_started
+    volumes:
+      - headscale-socket:/var/run/headscale:ro
+      - policyservice-data:/data:rw
 
   headplane:
     image: ghcr.io/tale/headplane:latest
     container_name: headplane
     restart: unless-stopped
+    expose:
+      - 3000
     volumes:
       - ./.docker/headplane/config/config.yaml:/etc/headplane/config.yaml
       - ./.docker/headplane/data/storage:/var/lib/headplane
       - ./.docker/headscale/config/config.yaml:/etc/headscale/config.yaml
       - ./.docker/headscale/config/dns_records.json:/etc/headscale/dns_records.json
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    expose:
-      - 3000
     networks:
       - traefik-network
     labels:

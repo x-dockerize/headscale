@@ -4,9 +4,15 @@ services:
     container_name: headscale
     restart: unless-stopped
     command: serve
+    environment:
+      - TZ=Europe/Istanbul
+    ports:
+      - 3478:3478/udp
     volumes:
       - ./.docker/headscale/config:/etc/headscale
       - ./.docker/headscale/data:/var/lib/headscale
+    networks:
+      - traefik-network
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-network"
@@ -27,13 +33,6 @@ services:
 
       # Services
       - "traefik.http.services.headscale.loadbalancer.server.port=8080"
-    ports:
-      - "3478:3478/udp"
-    networks:
-      - traefik-network
-    environment:
-      - TZ=Europe/Istanbul
-    # Sadece container sağlıklıysa trafiği kabul et
     healthcheck:
       test: ["CMD", "headscale", "health"]
       interval: 30s
