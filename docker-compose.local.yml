@@ -1,6 +1,6 @@
 services:
   headscale:
-    image: headscale/headscale:0.27.1
+    image: headscale/headscale:${HEADSCALE_VERSION:?required}
     container_name: headscale
     restart: unless-stopped
     command: serve
@@ -40,7 +40,7 @@ services:
       retries: 3
 
   headscale-ui:
-    image: ghcr.io/gurucomputing/headscale-ui:2025.08.23
+    image: ghcr.io/gurucomputing/headscale-ui:${HEADSCALE_UI_VERSION:?required}
     container_name: headscale-ui
     restart: unless-stopped
     networks:
