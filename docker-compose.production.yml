@@ -25,8 +25,8 @@ services:
 
       # Routers
       - traefik.http.routers.headscale.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`)
-      - traefik.http.routers.headscale.entrypoints=websecure
-      - traefik.http.routers.headscale.tls.certresolver=le-cloudflare
+      - traefik.http.routers.headscale.entrypoints=https
+      - traefik.http.routers.headscale.tls.certresolver=cloudflare
       - traefik.http.routers.headscale.service=headscale
 
       # Services
@@ -57,8 +57,8 @@ services:
 
       # Routers
       - traefik.http.routers.headscale-console.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`) && PathPrefix(`/console`)
-      - traefik.http.routers.headscale-console.entrypoints=websecure
-      - traefik.http.routers.headscale-console.tls.certresolver=le-cloudflare
+      - traefik.http.routers.headscale-console.entrypoints=https
+      - traefik.http.routers.headscale-console.tls.certresolver=cloudflare
       - traefik.http.routers.headscale-console.service=headscale-console
 
       # Middlewares
@@ -115,8 +115,8 @@ services:
 
       # Routers
       - traefik.http.routers.headplane.rule=Host(`${HEADSCALE_SERVER_HOSTNAME:?required}`) && PathPrefix(`/admin`)
-      - traefik.http.routers.headplane.entrypoints=websecure
-      - traefik.http.routers.headplane.tls.certresolver=le-cloudflare
+      - traefik.http.routers.headplane.entrypoints=https
+      - traefik.http.routers.headplane.tls.certresolver=cloudflare
       - traefik.http.routers.headplane.service=headplane
 
       # Services

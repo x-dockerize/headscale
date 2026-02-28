@@ -18,8 +18,8 @@ services:
       - traefik.docker.network=traefik-network
 
       - traefik.http.routers.headscale.rule=Host(`headscale.${DOMAIN}`)
-      - traefik.http.routers.headscale.entrypoints=websecure
-      - traefik.http.routers.headscale.tls.certresolver=le-cloudflare
+      - traefik.http.routers.headscale.entrypoints=https
+      - traefik.http.routers.headscale.tls.certresolver=cloudflare
       - traefik.http.routers.headscale.service=headscale
 
       # --- CORS Middleware Ayarları (SIHİRLİ KISIM) ---
@@ -51,8 +51,8 @@ services:
 
       # Subdomain Kuralı
       - traefik.http.routers.headscale-ui.rule=Host(`headscale-ui.${DOMAIN}`)
-      - traefik.http.routers.headscale-ui.entrypoints=websecure
-      - traefik.http.routers.headscale-ui.tls.certresolver=le-cloudflare
+      - traefik.http.routers.headscale-ui.entrypoints=https
+      - traefik.http.routers.headscale-ui.tls.certresolver=cloudflare
       - traefik.http.routers.headscale-ui.middlewares=internal@docker # Security Middleware
 
       # Service Ayarları
