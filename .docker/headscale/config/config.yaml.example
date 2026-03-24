@@ -306,20 +306,10 @@ dns:
   # your tailnet base_domain is always the first search domain.
   search_domains: []
 
-  # Extra DNS records
+  # Extra DNS records (loaded from file, headscale hot-reloads on change)
   # so far only A and AAAA records are supported (on the tailscale side)
   # See: docs/ref/dns.md
-  extra_records: []
-  #   - name: "grafana.myvpn.example.com"
-  #     type: "A"
-  #     value: "100.64.0.3"
-  #
-  #   # you can also put it in one line
-  #   - { name: "prometheus.myvpn.example.com", type: "A", value: "100.64.0.3" }
-  #
-  # Alternatively, extra DNS records can be loaded from a JSON file.
-  # Headscale processes this file on each change.
-  # extra_records_path: /var/lib/headscale/extra-records.json
+  extra_records_path: /etc/headscale/extra-records.json
 
 # Unix socket used for the CLI to connect without authentication
 # Note: for production you will want to set this to something like:
