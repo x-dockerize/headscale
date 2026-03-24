@@ -45,7 +45,7 @@ services:
     container_name: headscale-console
     pull_policy: missing
     restart: always
-    command: serve
+    command: serve --base /console
     expose:
       - 3000
     volumes:
@@ -61,11 +61,6 @@ services:
       - traefik.http.routers.headscale-console.entrypoints=https
       - traefik.http.routers.headscale-console.tls.certresolver=cloudflare
       - traefik.http.routers.headscale-console.service=headscale-console
-
-      # Middlewares
-      - traefik.http.middlewares.headscale-console-rewrite.replacepathprefix.from=/console
-      - traefik.http.middlewares.headscale-console-rewrite.replacepathprefix.to=/admin
-      - traefik.http.routers.headscale-console.middlewares=headscale-console-rewrite
 
       # Services
       - traefik.http.services.headscale-console.loadbalancer.server.port=3000
