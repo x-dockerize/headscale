@@ -7,10 +7,6 @@ services:
     command: serve
     environment:
       - TZ=Europe/Istanbul
-    expose:
-      - 8080 #  Main server
-      - 9090 #  Metrics
-      - 50443 # GRPC
     ports:
       - 0.0.0.0:3478:3478/udp # stun
     volumes:
@@ -46,8 +42,6 @@ services:
     pull_policy: missing
     restart: always
     command: serve --base /console
-    expose:
-      - 3000
     volumes:
       - ./.docker/headscale/config/config.yaml:/etc/headscale/config.yaml:ro
     networks:
@@ -69,8 +63,6 @@ services:
     image: ghcr.io/tale/headplane:${HEADPLANE_VERSION:?required}
     container_name: headplane
     restart: unless-stopped
-    expose:
-      - 3000
     volumes:
       - ./.docker/headplane/config/config.yaml:/etc/headplane/config.yaml
       - ./.docker/headplane/data/storage:/var/lib/headplane
