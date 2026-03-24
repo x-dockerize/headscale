@@ -1,3 +1,4 @@
 *
 !.gitignore
 !config.yaml.example
+!dns_records.json.example

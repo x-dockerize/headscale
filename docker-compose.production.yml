@@ -70,32 +70,6 @@ services:
       # Services
       - traefik.http.services.headscale-console.loadbalancer.server.port=3000
 
-  headscale-selfservice:
-    image: ghcr.io/rickli-cloud/headscale-console:${HEADSCALE_CONSOLE_VERSION:?required}
-    container_name: headscale-selfservice
-    pull_policy: missing
-    restart: always
-    command: selfservice --control-url https://${HEADSCALE_SERVER_HOSTNAME:?required}
-    depends_on:
-      headscale:
-        condition: service_started
-    volumes:
-      - headscale-socket:/var/run/headscale:ro
-      - selfservice-data:/data:rw
-
-  headscale-policyservice:
-    image: ghcr.io/rickli-cloud/headscale-console:${HEADSCALE_CONSOLE_VERSION:?required}
-    container_name: headscale-policyservice
-    pull_policy: missing
-    restart: always
-    command: policyservice --control-url https://${HEADSCALE_SERVER_HOSTNAME:?required}
-    depends_on:
-      headscale:
-        condition: service_started
-    volumes:
-      - headscale-socket:/var/run/headscale:ro
-      - policyservice-data:/data:rw
-
   headplane:
     image: ghcr.io/tale/headplane:${HEADPLANE_VERSION:?required}
     container_name: headplane
@@ -125,10 +99,6 @@ services:
 
 
 volumes:
-  selfservice-data:
-    name: selfservice-data
-  policyservice-data:
-    name: policyservice-data
   headscale-socket:
     name: headscale-socket
 
